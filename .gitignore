@@ -1,1 +1,5 @@
 # list file and folder not be commited
+
+mariadb
+nginx/log
+phpmyadmin/sessions
