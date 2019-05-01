@@ -1,2 +1,2 @@
 # stdsys
-API services
+docker-compose common for web services
