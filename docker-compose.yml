@@ -1,0 +1,109 @@
+version: '3.2'
+services:
+  # nginx:
+  #   build:
+  #     context: ./nginx
+  #     dockerfile: Dockerfile
+  #   container_name: stdweb_nginx
+  #   ports:
+  #    - "80:80"
+  #    - "443:443"
+  #   volumes:
+  #    - ./webroot:/var/www/html
+  #    - ./nginx/log:/var/log/nginx
+  #    - ./nginx/nginx.conf:/etc/nginx/nginx.conf
+  #   # environment:
+  #   #   XDEBUG_CONFIG: remote_host=host.docker.internal
+  #   external_links:
+  #    - mariadb:mariadb
+  #    - phpmyadmin:phpmyadmin
+  #   # - maildev
+  
+  mariadb:
+    image: mariadb:latest
+    container_name: mariadb
+    restart: always
+    environment:
+      - MYSQL_ROOT_PASSWORD=abc123
+    #  - "MYSQL_RANDOM_ROOT_PASSWORD="
+    #  - "MYSQL_ALLOW_EMPTY_PASSWORD="
+    volumes:
+     - "./mariadb:/var/lib/mysql"
+  
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin:latest
+    container_name: phpMyAdmin
+    restart: always
+    environment:
+      - MYSQL_USERNAME=root
+      - MYSQL_ROOT_PASSWORD=abc123
+      - PMA_HOST=mariadb
+      # - PMA_USER=root
+      # - PMA_PASSWORD=secret
+      # - PMA_PORT=3306
+    ports:
+      - "8082:80"
+    external_links:
+      - mariadb:mariadb
+    volumes:
+      - "./phpmyadmin/sessions:/sessions"
+    
+  # maildev:
+  #   image: djfarrelly/maildev
+  # container_name: maildev
+  #   ports:
+  #     - "8081:80"
+  
+  
+  ### Solution 2. Separate services and using nginx from dockerhub
+  nginx:
+    image: richarvey/nginx-php-fpm:latest
+    container_name: nginx
+    restart: always
+    ports:
+     - "80:80"
+    volumes:
+     - ./webroot:/var/www/html
+    external_links:
+     - mariadb:mariadb
+     - phpmyadmin:phpmyadmin
+  
+  
+  ### Solution 3. Separate services
+  # nginx:
+  #   image: nginx:1.10.1-alpine
+  #   restart: always
+  #   volumes:
+  #     - ./nginx/nginx.conf:/etc/nginx/nginx.conf
+  #     - ./nginx/app.vhost:/etc/nginx/conf.d/default.conf
+  #     - ./logs/nginx:/var/log/nginx
+  #     - ./your.web.app/:/var/www/your.web.app
+  #     - ./jekyll.matbra.com/:/var/www/jekyll.matbra.com
+  #   ports:
+  #     - "80:80"
+  #     - "443:443"
+  #   links:
+  #     - fpm
+
+  # fpm:
+  #   # image: php:7.0-fpm-alpine
+  #   build: php7fpm
+  #   restart: always
+  #   volumes:
+  #     - ./your.web.app/:/var/www/your.web.app
+  #     - ./php7fpm/sendmail.mc:/usr/share/sendmail/cf/debian/sendmail.mc
+  #     - ./php7fpm/gmail-auth.db:/etc/mail/authinfo/gmail-auth.db
+  #   ports:
+  #     - "9000:9000"
+  #   links:
+  #     - mariadb 
+  #   hostname: your.host
+
+  # mariadb:
+  #   image: mariadb
+  #   restart: always
+  #   environment:
+  #     - MYSQL_ROOT_PASSWORD=yourpassword
+  #     - MYSQL_DATABASE=yourdb
+  #   volumes:
+  #     - ./path-to/db:/var/lib/mysql

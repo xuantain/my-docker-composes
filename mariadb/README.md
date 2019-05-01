@@ -1,0 +1,1 @@
+mariadb/ stores database/db-logs/db-configs

@@ -1,0 +1,1 @@
+phpmyadmin/ stores sessions/phpmyadmin-configs
