@@ -28,7 +28,7 @@ services:
     #  - "MYSQL_RANDOM_ROOT_PASSWORD="
     #  - "MYSQL_ALLOW_EMPTY_PASSWORD="
     volumes:
-     - "./mariadb:/var/lib/mysql"
+     - "./mariadb/data:/var/lib/mysql"
   
   phpmyadmin:
     image: phpmyadmin/phpmyadmin:latest

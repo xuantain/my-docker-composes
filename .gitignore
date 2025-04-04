@@ -1,5 +1,12 @@
 # list file and folder not be commited
 
-mariadb
+mariadb/data
 nginx/log
 phpmyadmin/sessions
+
+**/.DS_Store
+.env
+.idea
+certs/
+data/
+docker-compose.override.yml
