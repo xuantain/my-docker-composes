@@ -11,8 +11,8 @@ services:
       - NODE_ENV=development
       - CHOKIDAR_USEPOLLING=true
       - WATCHPACK_POLLING=true
-    # ports:
-    #   - "3000:3000" # Only exposed for development
+    ports:
+      - "3000:3000" # Only exposed for development
     networks:
       - app-network
 
@@ -33,12 +33,15 @@ services:
       # - DB_PASSWORD=password
       # - DB_NAME=todos_db
     ports:
-      - "8080:8080" # Only exposed for development
+      - "8080:8080" # Only exposed for development - For external access if needed
+    expose:
+      - "8080" # For internal container access
     networks:
       - app-network
     depends_on:
       - frontend
       # - db
+    restart: unless-stopped
     # healthcheck:
     #   test: ["CMD", "curl", "-f", "http://localhost:8080/api/health"]
     #   interval: 30s
@@ -81,3 +84,4 @@ services:
 networks:
   app-network:
     driver: bridge
+    attachable: true
