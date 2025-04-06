@@ -1,45 +1,67 @@
 services:
-
-  # Nginx: Reverse Proxy and Static File Server
-  web:
-    build: ./nginx
-    ports:
-      - "80:80"
-    volumes:
-      - ../../todo-app/build:/app/dist  # Mount React build files
-      - ../../todo-app/build:/usr/share/nginx/html  # Mount React build files
-    depends_on:
-      - api
-    networks:
-      - app-network
-  
-  # Backend: Go Gin API
-  api:
-    build:
-      context: ../../go-todos-api
-      dockerfile: Dockerfile.backend
-    environment:
-      - DB_HOST=db
-      - DB_PORT=3306
-      - DB_USER=user
-      - DB_PASSWORD=password
-      - DB_NAME=todos_db
-    # volumes:
-    #   - ../../go-todos-api:/app
-    # depends_on:
-    #   - db
-    networks:
-      - app-network
-
-  # Frontend: React App
+  # React frontend with live reload
   frontend:
     build:
       context: ../../todo-app
       dockerfile: Dockerfile.frontend
-    depends_on:
-      - api
+    volumes:
+      - ../../todo-app:/app
+      - /app/node_modules
+    environment:
+      - NODE_ENV=development
+      - CHOKIDAR_USEPOLLING=true
+      - WATCHPACK_POLLING=true
+    # ports:
+    #   - "3000:3000" # Only exposed for development
     networks:
       - app-network
+
+  # Golang Gin backend
+  backend:
+    build:
+      context: ../../go-todos-api
+      dockerfile: Dockerfile.backend
+    volumes:
+      - ../../go-todos-api:/go/src/app
+    environment:
+      - GOPATH=/go
+      - GIN_MODE=debug
+      - AIR_WORKDIR=/go/src/app
+      # - DB_HOST=db
+      # - DB_PORT=3306
+      # - DB_USER=user
+      # - DB_PASSWORD=password
+      # - DB_NAME=todos_db
+    ports:
+      - "8080:8080" # Only exposed for development
+    networks:
+      - app-network
+    depends_on:
+      - frontend
+      # - db
+    # healthcheck:
+    #   test: ["CMD", "curl", "-f", "http://localhost:8080/api/health"]
+    #   interval: 30s
+    #   timeout: 10s
+    #   retries: 3
+    #   start_period: 5s
+
+  # Nginx reverse proxy
+  nginx:
+    image: nginx:alpine
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf
+    ports:
+      - "80:80"
+    networks:
+      - app-network
+    depends_on:
+      - frontend
+      - backend
+      # frontend:
+      #   condition: service_healthy
+      # backend:
+      #   condition: service_healthy
 
   # Database: MariaDB
   # db:
@@ -47,9 +69,9 @@ services:
   #   image: mariadb:latest
   #   environment:
   #     - MYSQL_ROOT_PASSWORD=rootpassword
-  #     - MYSQL_DATABASE=todos_db
   #     - MYSQL_USER=user
   #     - MYSQL_PASSWORD=password
+  #     - MYSQL_DATABASE=todos_db
   #   volumes:
   #     - ./mariadb/my.cnf:/etc/mysql/conf.d/my.cnf:ro
   #     - ./mariadb/data:/var/lib/mysql
@@ -59,6 +81,3 @@ services:
 networks:
   app-network:
     driver: bridge
-
-volumes:
-  db-data:
