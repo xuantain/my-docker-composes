@@ -1,0 +1,7 @@
+#!/bin/bash
+
+mkcert -install
+
+mkdir -p "$( dirname "$0" )/../certs/"
+
+mkcert -cert-file "$( dirname "$0" )/../certs/development.crt" -key-file "$( dirname "$0" )/../certs/development.key" "localhost" "todo.go.com"
