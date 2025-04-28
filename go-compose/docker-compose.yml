@@ -60,6 +60,7 @@ services:
       - "443:443"
     networks:
       - app-network
+    restart: always
     depends_on:
       - frontend
       - backend
@@ -83,7 +84,7 @@ services:
     networks:
       - app-network
     healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      test: [ "CMD", "mysqladmin", "ping", "-h", "localhost" ]
       interval: 5s
       timeout: 3s
       retries: 5

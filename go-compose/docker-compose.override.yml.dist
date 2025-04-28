@@ -9,6 +9,11 @@ services:
       - DB_NAME=test_db
     volumes:
       - path_to_your_backend:/app:cached
+    hostname: todo.go.com
+    networks:
+      app-network:
+        aliases:
+          - todo.go.com
 
   # Database: MariaDB
   db:
